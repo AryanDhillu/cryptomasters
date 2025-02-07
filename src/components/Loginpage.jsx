@@ -1,13 +1,38 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUser } from "../userSlice";
 
 const Loginpage = () => {
   const [userId, setUserId] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/start");
+    try {
+      const response = await fetch("https://crypto-master-3nth.onrender.com/login", {
+        method: "POST",
+        headers: {
+          "accept": "application/json",
+          "API_KEY": "thisisaryansapikeydontpushittogithub",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: userId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      dispatch(setUser(data)); // Save user data to Redux
+      navigate("/start");
+      
+    } catch (error) {
+      console.error("Error logging in:", error);
+      alert("Failed to login. Try again.");
+    }
   };
 
   return (
