@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import QuestionPopup from "./QuestionPopup";
+import { FaSpinner } from "react-icons/fa";
+
 
 const Questions = () => {
   const [questions, setQuestions] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -14,9 +17,9 @@ const Questions = () => {
             "accept": "application/json",
             "API_KEY": "thisisaryansapikeydontpushittogithub",
           },
-          body: "", // Empty body for POST request
+          body: "",
         });
-        
+
         if (!response.ok) {
           throw new Error(`HTTP Error! Status: ${response.status}`);
         }
@@ -25,27 +28,60 @@ const Questions = () => {
         setQuestions(data);
       } catch (error) {
         console.error("Error fetching questions:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchQuestions();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <FaSpinner className="loading-icon" />
+        <p>Loading Questions...</p>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <h1>Questions Page</h1>
-      <div>
+    <div className="questions-page">
+      <h1 className="page-title">Crypto Challenge Questions</h1>
+      <div className="difficulty-legend">
+        <div className="legend-item">
+          <span className="legend-dot easy"></span>
+          Easy
+        </div>
+        <div className="legend-item">
+          <span className="legend-dot medium"></span>
+          Medium
+        </div>
+        <div className="legend-item">
+          <span className="legend-dot hard"></span>
+          Hard
+        </div>
+      </div>
+      
+      <div className="questions-grid">
         {questions.map((q) => (
           <div
             key={q._id}
-            style={{ border: "1px solid black", padding: "10px", margin: "5px", cursor: "pointer" }}
+            className={`question-card ${q.difficulty?.toLowerCase() || 'easy'}`}
             onClick={() => setSelectedQuestion(q)}
           >
-            {q.question_type === "mcq_image" ? (
-              <img src={q.question} alt="MCQ Question" style={{ width: "200px" }} />
-            ) : (
-              <p>{q.question}</p>
-            )}
+            <div className="card-content">
+              {q.question_type === "mcq_image" ? (
+                <div className="image-container">
+                  <img src={q.question} alt="MCQ Question" />
+                </div>
+              ) : (
+                <p className="question-text">{q.question}</p>
+              )}
+              <div className="difficulty-badge">
+                {q.difficulty || 'Easy'}
+              </div>
+            </div>
           </div>
         ))}
       </div>

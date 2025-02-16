@@ -2,14 +2,21 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../userSlice";
+import { FaUser, FaSpinner, FaLock } from 'react-icons/fa';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-const Loginpage = () => {
+const LoginPage = () => {
   const [userId, setUserId] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
     try {
       const response = await fetch("https://crypto-master-3nth.onrender.com/login", {
         method: "POST",
@@ -22,33 +29,77 @@ const Loginpage = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP Error! Status: ${response.status}`);
+        throw new Error(`Login failed. Please check your User ID.`);
       }
 
       const data = await response.json();
-      dispatch(setUser(data)); // Save user data to Redux
+      dispatch(setUser(data));
       navigate("/start");
-      
     } catch (error) {
       console.error("Error logging in:", error);
-      alert("Failed to login. Try again.");
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div>
-      <h1>Login Page</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Enter User ID"
-          value={userId}
-          onChange={(e) => setUserId(e.target.value)}
-        />
-        <button type="submit">Login</button>
-      </form>
+    <div className="login-wrapper">
+      <div className="background-shapes">
+        <div className="shape shape-1"></div>
+        <div className="shape shape-2"></div>
+        <div className="shape shape-3"></div>
+        <div className="shape shape-4"></div>
+      </div>
+
+      <div className="login-container">
+        <div className="glass-effect"></div>
+        <div className="login-box">
+          <div className="login-content">
+            <div className="icon-container">
+              <FaUser className="user-icon" />
+            </div>
+            <h1 className="login-title">Welcome Back</h1>
+            
+            <form onSubmit={handleSubmit} className="login-form">
+              <div className="form-group">
+                <div className="input-group">
+                  <div className="input-icon">
+                    <FaLock />
+                  </div>
+                  <input
+                    type="text"
+                    className={`form-input ${error ? 'error' : ''}`}
+                    placeholder="Enter User ID"
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
+                    disabled={isLoading}
+                  />
+                  <div className="input-border"></div>
+                </div>
+                {error && <div className="error-message">{error}</div>}
+              </div>
+              
+              <button 
+                type="submit" 
+                className="login-btn"
+                disabled={isLoading || !userId.trim()}
+              >
+                {isLoading ? (
+                  <>
+                    <FaSpinner className="spinner" /> Processing...
+                  </>
+                ) : (
+                  'Login'
+                )}
+                <span className="btn-glow"></span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Loginpage;
+export default LoginPage;
