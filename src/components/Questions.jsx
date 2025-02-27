@@ -87,15 +87,13 @@ const Questions = () => {
     const requestData = {
       user_id: user.user_id,
       question_id: questionToOpen.question_id,
-      spent_amt: betAmount,
-      multiplier: questionToOpen.multiplier,
+      bet_amt: betAmount,
       time_left: timeLeft,
-      solved: false,
     };
 
-    
+
     try {
-      const response = await fetch("https://crypto-master-3nth.onrender.com/update", {
+      const response = await fetch("https://crypto-master-3nth.onrender.com/questionStart", {
         method: "POST",
         headers: {
           accept: "application/json",
@@ -110,6 +108,7 @@ const Questions = () => {
       }
 
       const responseData = await response.json();
+      console.log(responseData)
       if (responseData.success) {
         dispatch(setUser({ ...user, coins: responseData.coins }));
         fetchUpdatedUser();
