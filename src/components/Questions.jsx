@@ -93,6 +93,7 @@ const Questions = () => {
       solved: false,
     };
 
+    
     try {
       const response = await fetch("https://crypto-master-3nth.onrender.com/update", {
         method: "POST",

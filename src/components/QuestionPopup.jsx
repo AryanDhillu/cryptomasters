@@ -10,8 +10,13 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount }) => {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    console.log(selectedOption)
 
-    const isCorrect = selectedOption === question.correct_ans;
+    const correctOption = question.options[question.correct_ans - 1]; // Adjust index
+    const isCorrect = correctOption === selectedOption;
+
+
+    
     console.log("User ID:", userId);
     console.log("Time Left:", timeLeft, "seconds");
     console.log("Answer is", isCorrect ? "Correct" : "Incorrect");
