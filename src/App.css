@@ -3,6 +3,7 @@
   /* Import fonts */
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
+
 .custom-navbar {
     background: linear-gradient(to right, #1a1a2e, #16213e) !important;
     padding: 1rem 0;

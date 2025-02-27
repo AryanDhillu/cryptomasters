@@ -50,9 +50,10 @@ const Questions = () => {
     fetchQuestions();
   }, [user.user_id]);
 
-  const handleQuestionClick = async (question) => {
+  const handleQuestionClick = (question) => {
     if (question.status === "locked" || question.status === "attempting") {
       setQuestionToOpen(question);
+      setBetAmount(question.minimum_spend || 10); // Ensure betAmount is set correctly
       setIsModalOpen(true);
     } else {
       setSelectedQuestion(question);
@@ -73,7 +74,7 @@ const Questions = () => {
 
       if (userResponse.ok) {
         const updatedUserData = await userResponse.json();
-        dispatch(setUser(updatedUserData)); // 🔥 Force UI update (Navbar updates too)
+        dispatch(setUser(updatedUserData));
       }
     } catch (error) {
       console.error("Error fetching updated user data:", error);
@@ -108,15 +109,10 @@ const Questions = () => {
       }
 
       const responseData = await response.json();
-      
       if (responseData.success) {
-        // 🔥 Update Redux store with new coins & fetch updated data
         dispatch(setUser({ ...user, coins: responseData.coins }));
-        fetchUpdatedUser(); // Ensure Navbar updates
+        fetchUpdatedUser();
       }
-
-      console.log(responseData)
-      console.log(`Bet placed: ${betAmount} coins. Updated coins: ${responseData.coins}`);
       setIsModalOpen(false);
       setSelectedQuestion(questionToOpen);
     } catch (error) {
@@ -164,13 +160,14 @@ const Questions = () => {
       >
         <p>This question is locked. Confirm to continue and place your bet!</p>
         <p>Select the amount of coins you want to bet:</p>
-        <Slider 
-          min={questionToOpen ? questionToOpen.minimum_spend : 10} 
-          max={user.coins} 
-          defaultValue={betAmount} 
-          onChange={(value) => setBetAmount(value)} 
-        />
-
+        {questionToOpen && (
+          <Slider 
+            min={questionToOpen.minimum_spend || 10} 
+            max={user.coins} 
+            value={betAmount}
+            onChange={(value) => setBetAmount(value)} 
+          />
+        )}
         <p>Bet Amount: {betAmount} coins</p>
       </Modal>
 
