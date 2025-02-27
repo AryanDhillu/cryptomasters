@@ -1,13 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { FaPlay, FaRocket } from 'react-icons/fa';
-
+import { FaPlay, FaRocket } from "react-icons/fa";
+import { setTimeLeft, startTimer } from "../userSlice";
 
 const Start = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const timerStarted = useSelector((state) => state.user.timerStarted);
+  const timeLeft = useSelector((state) => state.user.time_left);
+
+  useEffect(() => {
+    let timer;
+    if (timerStarted && timeLeft > 0) {
+      timer = setInterval(() => {
+        dispatch(setTimeLeft(timeLeft - 1));
+      }, 1000);
+    } else if (timeLeft === 0) {
+      clearInterval(timer);
+    }
+    return () => clearInterval(timer);
+  }, [timerStarted, timeLeft, dispatch]);
 
   const handleClick = (e) => {
     e.preventDefault();
+    dispatch(startTimer()); // Start the timer
     navigate("/questions");
   };
 
@@ -26,21 +43,6 @@ const Start = () => {
           <div className="card-content">
             <h2>Welcome to the Challenge</h2>
             <p>Test your crypto knowledge and compete with others!</p>
-            
-            <div className="info-points">
-              <div className="info-item">
-                <span className="info-circle">?</span>
-                <span>Multiple Questions</span>
-              </div>
-              <div className="info-item">
-                <span className="info-circle">⏱</span>
-                <span>Timed Challenges</span>
-              </div>
-              <div className="info-item">
-                <span className="info-circle">🏆</span>
-                <span>Win Rewards</span>
-              </div>
-            </div>
 
             <button onClick={handleClick} className="start-button">
               Start Challenge

@@ -28,13 +28,18 @@ const LoginPage = () => {
         body: JSON.stringify({ user_id: userId }),
       });
 
-      if (!response.ok) {
+      const data = await response.json();
+
+      if (data.message != "User not found") {
+        dispatch(setUser(data));
+        navigate("/start");
+      }else{
         throw new Error(`Login failed. Please check your User ID.`);
       }
 
-      const data = await response.json();
-      dispatch(setUser(data));
-      navigate("/start");
+      console.log(data);
+      
+
     } catch (error) {
       console.error("Error logging in:", error);
       setError(error.message);

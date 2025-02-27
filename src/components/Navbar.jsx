@@ -1,46 +1,51 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { FaUser, FaCoins, FaClock, FaBars, FaTimes } from "react-icons/fa";
 import { Navbar as BootstrapNavbar, Container } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { setTimeLeft } from "../userSlice";
 
 const Navbar = () => {
   const user = useSelector((state) => state.user);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const dispatch = useDispatch();
+  const timeLeft = useSelector((state) => state.user.time_left);
+  const timerStarted = useSelector((state) => state.user.timerStarted);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    let timer;
+    if (timerStarted && timeLeft > 0) {
+      timer = setInterval(() => {
+        dispatch(setTimeLeft(timeLeft - 1));
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [timerStarted, timeLeft, dispatch]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+  };
 
   return (
-    <BootstrapNavbar 
-      bg="dark" 
-      variant="dark" 
-      expand="lg" 
-      className={`custom-navbar ${isScrolled ? 'scrolled' : ''}`}
-    >
+    <BootstrapNavbar bg="dark" variant="dark" expand="lg" className="custom-navbar">
       <Container>
         <BootstrapNavbar.Brand className="brand-name">
           <span className="gradient-text">App Name</span>
         </BootstrapNavbar.Brand>
-        
-        <div className="navbar-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          {isMenuOpen ? <FaTimes /> : <FaBars />}
+
+        <div className="navbar-toggle">
+          <FaBars />
         </div>
 
-        <div className={`user-info-container ${isMenuOpen ? 'show' : ''}`}>
+        <div className="user-info-container">
           <div className="info-item">
             <div className="icon-wrapper">
               <FaUser className="icon" />
             </div>
             <div className="info-content">
               <span className="info-label">User ID</span>
-              <span className="info-value">{user.email_id || "--"}</span>
+              <span className="info-value">{user.user_id || "--"}</span>
             </div>
           </div>
 
@@ -64,15 +69,17 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className="info-item">
-            <div className="icon-wrapper">
-              <FaClock className="icon" />
+          {timerStarted && (
+            <div className="info-item">
+              <div className="icon-wrapper">
+                <FaClock className="icon" />
+              </div>
+              <div className="info-content">
+                <span className="info-label">Time Left</span>
+                <span className="info-value">{formatTime(timeLeft)}</span>
+              </div>
             </div>
-            <div className="info-content">
-              <span className="info-label">Time Left</span>
-              <span className="info-value">1500</span>
-            </div>
-          </div>
+          )}
         </div>
       </Container>
     </BootstrapNavbar>
