@@ -51,14 +51,16 @@ const Questions = () => {
   }, [user.user_id]);
 
   const handleQuestionClick = (question) => {
-    if (question.status === "locked" || question.status === "attempting") {
+    if (question.status === "locked") {
       setQuestionToOpen(question);
-      setBetAmount(question.minimum_spend || 10); // Ensure betAmount is set correctly
-      setIsModalOpen(true);
-    } else {
-      setSelectedQuestion(question);
+      setBetAmount(question.minimum_spend || 10);
+      setIsModalOpen(true); // Show modal for locked questions
+    } else if (question.status === "attempting") {
+      setSelectedQuestion(question); // Open question popup only for attempting
     }
   };
+  
+  
 
   const fetchUpdatedUser = async () => {
     try {
