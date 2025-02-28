@@ -1,22 +1,20 @@
 import React, { useState } from "react";
-import { FaTimes, FaCheck } from "react-icons/fa";
+import { FaCheck } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { setUser } from "../userSlice";
 
-const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount }) => {
+const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQuestions }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    console.log(selectedOption)
+    console.log(selectedOption);
 
     const correctOption = question.options[question.correct_ans - 1]; // Adjust index
     const isCorrect = correctOption === selectedOption;
 
-
-    
     console.log("User ID:", userId);
     console.log("Time Left:", timeLeft, "seconds");
     console.log("Answer is", isCorrect ? "Correct" : "Incorrect");
@@ -65,6 +63,7 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount }) => {
     }
 
     setTimeout(() => {
+      fetchQuestions(); // Fetch updated questions after submitting
       onClose();
     }, 1000);
   };
@@ -73,10 +72,6 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount }) => {
     <div className="popup-overlay">
       <div className="popup-wrapper">
         <div className="popup-content">
-          <button className="close-button" onClick={onClose}>
-            <FaTimes />
-          </button>
-
           <div className="question-section">
             <h2>{question.question}</h2>
           </div>
@@ -106,7 +101,13 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount }) => {
           )}
 
           <div className="action-buttons">
-            <button className="cancel-button" onClick={onClose}>
+            <button
+              className="cancel-button"
+              onClick={() => {
+                fetchQuestions(); // Fetch updated questions when exiting
+                onClose();
+              }}
+            >
               Exit
             </button>
             <button

@@ -17,36 +17,39 @@ const Questions = () => {
   const timeLeft = user.time_left; 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const response = await fetch("https://crypto-master-3nth.onrender.com/questions", {
-          method: "POST",
-          headers: {
-            accept: "application/json",
-            "API_KEY": "thisisaryansapikeydontpushittogithub",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ user_id: user.user_id }),
-        });
+  // Function to fetch questions
+  const fetchQuestions = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("https://crypto-master-3nth.onrender.com/questions", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "API_KEY": "thisisaryansapikeydontpushittogithub",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: user.user_id }),
+      });
 
-        if (!response.ok) {
-          throw new Error(`HTTP Error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (data && data.questions) {
-          setQuestions(data.questions);
-        } else {
-          throw new Error("Invalid response format");
-        }
-      } catch (error) {
-        console.error("Error fetching questions:", error);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
       }
-    };
 
+      const data = await response.json();
+      if (data && data.questions) {
+        setQuestions(data.questions);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch questions when component mounts
+  useEffect(() => {
     fetchQuestions();
   }, [user.user_id]);
 
@@ -54,13 +57,11 @@ const Questions = () => {
     if (question.status === "locked") {
       setQuestionToOpen(question);
       setBetAmount(question.minimum_spend || 10);
-      setIsModalOpen(true); // Show modal for locked questions
+      setIsModalOpen(true);
     } else if (question.status === "attempting") {
-      setSelectedQuestion(question); // Open question popup only for attempting
+      setSelectedQuestion(question);
     }
   };
-  
-  
 
   const fetchUpdatedUser = async () => {
     try {
@@ -93,7 +94,6 @@ const Questions = () => {
       time_left: timeLeft,
     };
 
-
     try {
       const response = await fetch("https://crypto-master-3nth.onrender.com/questionStart", {
         method: "POST",
@@ -110,13 +110,16 @@ const Questions = () => {
       }
 
       const responseData = await response.json();
-      console.log(responseData)
+      console.log(responseData);
+
       if (responseData.success) {
         dispatch(setUser({ ...user, coins: responseData.coins }));
         fetchUpdatedUser();
       }
+
       setIsModalOpen(false);
       setSelectedQuestion(questionToOpen);
+      fetchQuestions(); // Refresh questions after unlocking
     } catch (error) {
       console.error("Error updating question status:", error);
     }
@@ -176,10 +179,14 @@ const Questions = () => {
       {selectedQuestion && (
         <QuestionPopup
           question={selectedQuestion}
-          onClose={() => setSelectedQuestion(null)}
+          onClose={() => {
+            setSelectedQuestion(null);
+            fetchQuestions(); // Refresh questions when exiting
+          }}
           userId={user.user_id}
           timeLeft={timeLeft}  
           betAmount={betAmount}
+          fetchQuestions={fetchQuestions} // Pass function to refresh questions
         />
       )}
     </div>
