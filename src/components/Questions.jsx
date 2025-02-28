@@ -149,7 +149,7 @@ const Questions = () => {
               <p className="question-text">Difficulty: {q.difficulty}</p>
               <p className="question-text">Type: {q.question_type}</p>
               <p className="question-text">Status: {q.status}</p>
-              <p className="question-text">Profit: {q.multiplier}</p>
+              <p className="question-text">Profit Multiplier: {q.multiplier}x</p>
             </div>
           </div>
         ))}
@@ -166,14 +166,20 @@ const Questions = () => {
         <p>This question is locked. Confirm to continue and place your bet!</p>
         <p>Select the amount of coins you want to bet:</p>
         {questionToOpen && (
-          <Slider 
-            min={questionToOpen.minimum_spend || 10} 
-            max={user.coins} 
-            value={betAmount}
-            onChange={(value) => setBetAmount(value)} 
-          />
+          <>
+            <Slider 
+              min={questionToOpen.minimum_spend || 10} 
+              max={user.coins} 
+              value={betAmount}
+              onChange={(value) => setBetAmount(value)} 
+            />
+            <p>Bet Amount: <strong>{betAmount} coins</strong></p>
+            <p>
+              Potential Earnings:{" "}
+              <strong>{betAmount * (questionToOpen.multiplier || 1)} coins</strong>
+            </p>
+          </>
         )}
-        <p>Bet Amount: {betAmount} coins</p>
       </Modal>
 
       {selectedQuestion && (
