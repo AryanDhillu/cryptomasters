@@ -50,6 +50,28 @@ const Start = () => {
             </button>
           </div>
         </div>
+
+        <div className="instructions">
+          <h3>Instructions:</h3>
+          <ul>
+            <li>Each round lasts exactly 40 minutes.</li>
+            <li>
+              You can select a question of any difficulty level and place a bet using your coins. There is a minimum bet amount for each question based on the difficulty level.
+            </li>
+            <li>
+              When selecting a question, you will see the topic, difficulty level, and multiplier.
+            </li>
+            <li>
+              The full question will only be revealed after you place your bet.
+            </li>
+            <li>
+              The reward is calculated using a multiplier (e.g., if the multiplier is 1.5 and you bet 100 coins, you will receive 150 coins upon success).
+            </li>
+            <li>
+              You can leave a question before submitting an answer and attempt a different one. In this case, your bet amount will be deducted from your total coins, but you can return to the question later with the same bet in place.
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   );

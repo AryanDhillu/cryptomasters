@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { FaUser, FaCoins, FaClock, FaBars, FaTimes } from "react-icons/fa";
+import { FaUser, FaCoins, FaClock, FaBars } from "react-icons/fa";
 import { Navbar as BootstrapNavbar, Container } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { setTimeLeft } from "../userSlice";
@@ -65,7 +65,9 @@ const Navbar = () => {
             </div>
             <div className="info-content">
               <span className="info-label">Coins Left</span>
-              <span className="info-value">{user.coins || "--"}</span>
+              <span className="info-value">
+                {user.coins !== undefined ? user.coins.toFixed(2) : "--"}
+              </span>
             </div>
           </div>
 

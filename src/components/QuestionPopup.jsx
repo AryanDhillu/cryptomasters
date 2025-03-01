@@ -8,17 +8,25 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQu
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
 
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    console.log(selectedOption);
-
-    const correctOption = question.options[question.correct_ans - 1]; // Adjust index
-    const isCorrect = correctOption === selectedOption;
-
+  
+    let isCorrect = false;
+  
+    if (question.question_type === "mcq") {
+      const correctOption = question.options[question.correct_ans - 1]; 
+      isCorrect = correctOption === selectedOption;
+    } else if (question.question_type === "fib") {
+      const correctAnswer = String(question.correct_ans).trim().toLowerCase();
+      const userAnswer = selectedOption ? selectedOption.trim().toLowerCase() : "";
+      isCorrect = userAnswer === correctAnswer;
+    }
+  
     console.log("User ID:", userId);
     console.log("Time Left:", timeLeft, "seconds");
     console.log("Answer is", isCorrect ? "Correct" : "Incorrect");
-
+  
     const requestData = {
       user_id: userId,
       question_id: question.question_id,
@@ -28,6 +36,8 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQu
       solved: isCorrect,
     };
 
+    console.log(requestData)
+  
     try {
       const response = await fetch("https://crypto-master-3nth.onrender.com/update", {
         method: "POST",
@@ -38,10 +48,10 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQu
         },
         body: JSON.stringify(requestData),
       });
-
+  
       const data = await response.json();
       console.log("Server Response:", data);
-
+  
       if (response.ok) {
         const userResponse = await fetch("https://crypto-master-3nth.onrender.com/login", {
           method: "POST",
@@ -52,7 +62,7 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQu
           },
           body: JSON.stringify({ user_id: userId }),
         });
-
+  
         if (userResponse.ok) {
           const updatedUserData = await userResponse.json();
           dispatch(setUser(updatedUserData));
@@ -61,9 +71,9 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQu
     } catch (error) {
       console.error("Error updating result:", error);
     }
-
+  
     setTimeout(() => {
-      fetchQuestions(); // Fetch updated questions after submitting
+      fetchQuestions(); 
       onClose();
     }, 1000);
   };
@@ -74,6 +84,13 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQu
         <div className="popup-content">
           <div className="question-section">
             <h2>{question.question}</h2>
+            {question.question_image_url != null && (
+              <img 
+                src={question.question_image_url} 
+                alt="Question Image" 
+                className="question-image" 
+              />
+            )}
           </div>
 
           {question.question_type === "mcq" && question.options ? (
@@ -104,7 +121,7 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQu
             <button
               className="cancel-button"
               onClick={() => {
-                fetchQuestions(); // Fetch updated questions when exiting
+                fetchQuestions(); 
                 onClose();
               }}
             >

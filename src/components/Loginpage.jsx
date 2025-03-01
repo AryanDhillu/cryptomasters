@@ -30,15 +30,16 @@ const LoginPage = () => {
 
       const data = await response.json();
 
-      if (data.message != "User not found") {
-        dispatch(setUser(data));
-        navigate("/start");
-      }else{
-        throw new Error(`Login failed. Please check your User ID.`);
+      if (data.message === "User not found") {
+        throw new Error("Login failed. Please check your User ID.");
       }
 
-      console.log(data);
-      
+      if (data.time_left === 0) {
+        throw new Error("Your session has expired. Please try again later.");
+      }
+
+      dispatch(setUser(data));
+      navigate("/start");
 
     } catch (error) {
       console.error("Error logging in:", error);

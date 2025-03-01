@@ -55,6 +55,10 @@ const Questions = () => {
 
   const handleQuestionClick = (question) => {
     if (question.status === "locked") {
+      if (user.coins < (question.minimum_spend || 10)) {
+        alert(`You need at least ${question.minimum_spend || 10} coins to unlock this question.`);
+        return; // Stop execution and prevent the modal from opening
+      }
       setQuestionToOpen(question);
       setBetAmount(question.minimum_spend || 10);
       setIsModalOpen(true);
@@ -125,6 +129,20 @@ const Questions = () => {
     }
   };
 
+
+  const generateMarks = (min, max) => {
+    const stepSize = (max - min) / 4; // Divide into 5 points (including min and max)
+    let marks = {};
+  
+    for (let i = 0; i <= 4; i++) {
+      const value = Math.round(min + i * stepSize);
+      marks[value] = `${value}`; // Assign labels to marks
+    }
+  
+    return marks;
+  };
+  
+
   if (loading) {
     return (
       <div className="loading-screen">
@@ -172,11 +190,14 @@ const Questions = () => {
               max={user.coins} 
               value={betAmount}
               onChange={(value) => setBetAmount(value)} 
+              marks={generateMarks(questionToOpen.minimum_spend || 10, user.coins)}
+              step={null} // This ensures only stop points can be selected
             />
+
             <p>Bet Amount: <strong>{betAmount} coins</strong></p>
             <p>
               Potential Earnings:{" "}
-              <strong>{betAmount * (questionToOpen.multiplier || 1)} coins</strong>
+              <strong>{(betAmount * (questionToOpen.multiplier || 1)).toFixed(2)} coins</strong>
             </p>
           </>
         )}
