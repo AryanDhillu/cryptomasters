@@ -16,16 +16,18 @@ const Questions = () => {
   const user = useSelector((state) => state.user);
   const timeLeft = user.time_left; 
   const dispatch = useDispatch();
+  const API_URL = import.meta.env.VITE_API_URL;
+  const API_KEY = import.meta.env.VITE_API_KEY;
 
   // Function to fetch questions
   const fetchQuestions = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://crypto-master-3nth.onrender.com/questions", {
+      const response = await fetch(`${API_URL}/questions`, {
         method: "POST",
         headers: {
           accept: "application/json",
-          "API_KEY": "thisisaryansapikeydontpushittogithub",
+          "API_KEY": API_KEY,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ user_id: user.user_id }),
@@ -69,12 +71,12 @@ const Questions = () => {
 
   const fetchUpdatedUser = async () => {
     try {
-      const userResponse = await fetch("https://crypto-master-3nth.onrender.com/login", {
+      const userResponse = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           accept: "application/json",
           "Content-Type": "application/json",
-          API_KEY: "thisisaryansapikeydontpushittogithub",
+          API_KEY: API_KEY,
         },
         body: JSON.stringify({ user_id: user.user_id }),
       });
@@ -99,11 +101,11 @@ const Questions = () => {
     };
 
     try {
-      const response = await fetch("https://crypto-master-3nth.onrender.com/questionStart", {
+      const response = await fetch(`${API_URL}/questionStart`, {
         method: "POST",
         headers: {
           accept: "application/json",
-          "API_KEY": "thisisaryansapikeydontpushittogithub",
+          "API_KEY": API_KEY,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(requestData),

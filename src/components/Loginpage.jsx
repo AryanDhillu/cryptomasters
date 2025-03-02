@@ -11,18 +11,20 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const API_URL = import.meta.env.VITE_API_URL;
+  const API_KEY = import.meta.env.VITE_API_KEY;
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
-      const response = await fetch("https://crypto-master-3nth.onrender.com/login", {
+      const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           "accept": "application/json",
-          "API_KEY": "thisisaryansapikeydontpushittogithub",
+          "API_KEY": API_KEY,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ user_id: userId }),

@@ -10,6 +10,8 @@ const TimeUpDisplay = () => {
   const navigate = useNavigate();
   const [showTimeUp, setShowTimeUp] = useState(false);
   const [finalCoins, setFinalCoins] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL;
+  const API_KEY = import.meta.env.VITE_API_KEY;
 
   useEffect(() => {
     if (timeLeft <= 0 && !showTimeUp) {
@@ -33,11 +35,11 @@ const TimeUpDisplay = () => {
         console.log("Sending request:", requestData);
 
         try {
-          const response = await fetch("https://crypto-master-3nth.onrender.com/end", {
+          const response = await fetch(`${API_URL}/end`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "API_KEY": "thisisaryansapikeydontpushittogithub",
+              "API_KEY": API_KEY,
             },
             body: JSON.stringify(requestData),
           });
