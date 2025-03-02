@@ -7,7 +7,7 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQu
   const [selectedOption, setSelectedOption] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
-
+  
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
