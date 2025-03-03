@@ -6,8 +6,15 @@ import { setUser } from "../userSlice";
 const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQuestions }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+<<<<<<< HEAD
   const dispatch = useDispatch();
   
+=======
+  const dispatch = useDispatch();  
+  const API_URL = import.meta.env.VITE_API_URL;
+  const API_KEY = import.meta.env.VITE_API_KEY;
+
+>>>>>>> f6b0799ae5140861931ff228c0a3bcf0d27bdd15
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -39,12 +46,12 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQu
     console.log(requestData)
   
     try {
-      const response = await fetch("https://crypto-master-3nth.onrender.com/update", {
+      const response = await fetch(`${API_URL}/update`, {
         method: "POST",
         headers: {
           accept: "application/json",
           "Content-Type": "application/json",
-          API_KEY: "thisisaryansapikeydontpushittogithub",
+          API_KEY: API_KEY,
         },
         body: JSON.stringify(requestData),
       });
@@ -53,12 +60,12 @@ const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQu
       console.log("Server Response:", data);
   
       if (response.ok) {
-        const userResponse = await fetch("https://crypto-master-3nth.onrender.com/login", {
+        const userResponse = await fetch(`${API_URL}/login`, {
           method: "POST",
           headers: {
             accept: "application/json",
             "Content-Type": "application/json",
-            API_KEY: "thisisaryansapikeydontpushittogithub",
+            API_KEY: API_KEY,
           },
           body: JSON.stringify({ user_id: userId }),
         });
