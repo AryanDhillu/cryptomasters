@@ -10,6 +10,8 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const timeLeft = useSelector((state) => state.user.time_left);
   const timerStarted = useSelector((state) => state.user.timerStarted);
+  const API_URL = import.meta.env.VITE_API_URL;
+  const API_KEY = import.meta.env.VITE_API_KEY;
 
   useEffect(() => {
     let timer;
@@ -29,12 +31,12 @@ const Navbar = () => {
 
   const updateTime = async () => {
     try {
-      const response = await fetch("https://crypto-master-bsakl.ondigitalocean.app/updateTime", {
+      const response = await fetch(`${API_URL}/updateTime`, {
         method: "POST",
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json",
-          "API_KEY" : "thisisaryansapikeydontpushittogithub"
+          "API_KEY" : API_KEY
         },
         body: JSON.stringify({
           user_id: user.user_id || "--",
