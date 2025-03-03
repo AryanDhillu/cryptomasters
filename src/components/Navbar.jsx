@@ -44,7 +44,6 @@ const Navbar = () => {
         }),
       });
       const data = await response.json();
-      console.log("Response:", data);
     } catch (error) {
       console.error("Error updating time:", error);
     }
@@ -54,7 +53,7 @@ const Navbar = () => {
     <BootstrapNavbar bg="dark" variant="dark" expand="lg" className="custom-navbar">
       <Container>
         <BootstrapNavbar.Brand className="brand-name">
-          <span className="gradient-text">App Name</span>
+          <span className="gradient-text">Crypto Masters</span>
         </BootstrapNavbar.Brand>
 
         <div className="navbar-toggle">
@@ -107,7 +106,23 @@ const Navbar = () => {
           )}
         </div>
 
-        <Button variant="primary" onClick={updateTime} className="update-time-btn">
+        <Button 
+          variant="primary" 
+          onClick={updateTime} 
+          className="update-time-btn"
+          style={{
+            background: "linear-gradient(45deg,rgb(107, 186, 255),rgb(40, 111, 218))",
+            border: "none",
+            borderRadius: "20px",
+            margin: "10px",
+            padding: "10px 20px",
+            fontSize: "16px",
+            fontWeight: "bold",
+            transition: "0.3s ease",
+          }}
+          onMouseOver={(e) => e.target.style.opacity = "0.8"}
+          onMouseOut={(e) => e.target.style.opacity = "1"}
+        >
           Update Time
         </Button>
       </Container>

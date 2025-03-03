@@ -4,6 +4,8 @@ import { FaSpinner, FaCubes, FaLayerGroup, FaQuestion, FaLock, FaClock, FaCoins,
 import { useSelector, useDispatch } from "react-redux";
 import { Modal, Slider } from "antd";
 import { setUser } from "../userSlice";
+import { useNavigate } from "react-router-dom"; // Import navigate
+import { logoutUser } from "../userSlice"; // Ensure this action exists in userSlice
 
 
 const Questions = () => {
@@ -13,9 +15,16 @@ const Questions = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [betAmount, setBetAmount] = useState(10);
   const [questionToOpen, setQuestionToOpen] = useState(null);
+  const [isPlacingBet, setIsPlacingBet] = useState(false); // New state
+  const [isEndGameModalOpen, setIsEndGameModalOpen] = useState(false);
+  const [isWarningModalOpen, setIsWarningModalOpen] = useState(false); 
+  const [warningMessage, setWarningMessage] = useState("");
+
+  const navigate = useNavigate(); // Initialize navigatio
 
   const user = useSelector((state) => state.user);
   const timeLeft = user.time_left; 
+  const coins = user.coins;
   const dispatch = useDispatch();
   const API_URL = import.meta.env.VITE_API_URL;
   const API_KEY = import.meta.env.VITE_API_KEY;
@@ -59,16 +68,20 @@ const Questions = () => {
   const handleQuestionClick = (question) => {
     if (question.status === "locked") {
       if (user.coins < (question.minimum_spend || 10)) {
-        alert(`You need at least ${question.minimum_spend || 10} coins to unlock this question.`);
-        return; // Stop execution and prevent the modal from opening
+        setWarningMessage(`Oops! 😲 You need at least ${question.minimum_spend || 10} coins to unlock this question. 
+        Try solving other questions or earning more coins first! 🏆`);
+        setIsWarningModalOpen(true);
+        return;
       }
       setQuestionToOpen(question);
       setBetAmount(question.minimum_spend || 10);
       setIsModalOpen(true);
-    } else if (question.status === "attempting") {
+    } else if (["attempting", "solved", "wrong answer"].includes(question.status)) {
       setSelectedQuestion(question);
     }
   };
+  
+  
 
   const fetchUpdatedUser = async () => {
     try {
@@ -93,14 +106,16 @@ const Questions = () => {
 
   const handleModalConfirm = async () => {
     if (!questionToOpen) return;
-
+  
+    setIsPlacingBet(true); // Disable button and update text
+  
     const requestData = {
       user_id: user.user_id,
       question_id: questionToOpen.question_id,
       bet_amt: betAmount,
       time_left: timeLeft,
     };
-
+  
     try {
       const response = await fetch(`${API_URL}/questionStart`, {
         method: "POST",
@@ -111,24 +126,25 @@ const Questions = () => {
         },
         body: JSON.stringify(requestData),
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
       }
-
+  
       const responseData = await response.json();
-      console.log(responseData);
-
+  
       if (responseData.success) {
         dispatch(setUser({ ...user, coins: responseData.coins }));
         fetchUpdatedUser();
       }
-
+  
       setIsModalOpen(false);
       setSelectedQuestion(questionToOpen);
       fetchQuestions(); // Refresh questions after unlocking
     } catch (error) {
       console.error("Error updating question status:", error);
+    } finally {
+      setIsPlacingBet(false); // Reset button state
     }
   };
 
@@ -161,25 +177,24 @@ const Questions = () => {
           "Content-Type": "application/json",
           "API_KEY": API_KEY,
         },
-        body: JSON.stringify({ user_id: user.user_id, end_time: new Date().toISOString() }),
+        body: JSON.stringify({
+          user_id: user.user_id,
+          end_time: new Date().toISOString(),
+          coins: coins,
+        }),
       });
+
+      if (!response.ok) throw new Error(`HTTP Error! Status: ${response.status}`);
       const responseData = await response.json();
       console.log("End Game Response:", responseData);
+
       dispatch(logoutUser());
       navigate("/");
     } catch (error) {
       console.error("Error ending game session:", error);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <FaSpinner className="loading-icon" />
-        <p>Loading Questions...</p>
-      </div>
-    );
-  }
+  
 
   return (
     <div className="questions-page">
@@ -231,34 +246,33 @@ const Questions = () => {
       </div>
 
       <Modal
-        title="Confirm and Place Your Bet!"
-        open={isModalOpen}
-        onOk={handleModalConfirm}
-        onCancel={() => setIsModalOpen(false)}
-        okText="Confirm & Bet"
-        cancelText="Cancel"
-      >
-        <p>This question is locked. Confirm to continue and place your bet!</p>
-        <p>Select the amount of coins you want to bet:</p>
-        {questionToOpen && (
-          <>
-            <Slider 
-              min={questionToOpen.minimum_spend || 10} 
-              max={user.coins} 
-              value={betAmount}
-              onChange={(value) => setBetAmount(value)} 
-              marks={generateMarks(questionToOpen.minimum_spend || 10, user.coins)}
-              step={null} // This ensures only stop points can be selected
-            />
+          title="Big Decision Time! 💰"
+          open={isModalOpen}
+          onOk={handleModalConfirm}
+          onCancel={() => setIsModalOpen(false)}
+          okText={isPlacingBet ? "Placing Bet... 🎲" : "Lock It In! 🚀"}
+          cancelText="Nah, Changed My Mind"
+          okButtonProps={{ disabled: isPlacingBet }} // Disable button when processing
+        >
+          <p>Alright, high roller! This question is locked. Ready to risk it for the biscuit? 🏆</p>
+          <p>Choose your bet wisely… fortune favors the bold! 🔥</p>
+          {questionToOpen && (
+            <>
+              <Slider 
+                min={questionToOpen.minimum_spend || 10} 
+                max={user.coins} 
+                value={betAmount}
+                onChange={(value) => setBetAmount(value)} 
+                marks={generateMarks(questionToOpen.minimum_spend || 10, user.coins)}
+                step={null}
+              />
+            <p>Bet Amount: <strong>{betAmount} coins</strong> </p>
+        <p>Extra Earnings: <strong>{(betAmount * (questionToOpen.multiplier || 1)).toFixed(2)} coins</strong></p>
 
-            <p>Bet Amount: <strong>{betAmount} coins</strong></p>
-            <p>
-              Potential Earnings:{" "}
-              <strong>{(betAmount * (questionToOpen.multiplier || 1)).toFixed(2)} coins</strong>
-            </p>
-          </>
-        )}
-      </Modal>
+            </>
+          )}
+        </Modal>
+
 
       {selectedQuestion && (
         <QuestionPopup
@@ -274,6 +288,46 @@ const Questions = () => {
         />
         
       )}
+      <button 
+        type="default"
+        style={{ 
+          backgroundColor: "#ff4d4f", 
+          color: "white", 
+          fontSize: "16px", 
+          padding: "12px 24px", 
+          borderRadius: "8px", 
+          position: "fixed", 
+          bottom: "20px", 
+          left: "50%", 
+          transform: "translateX(-50%)", // Centers it
+          zIndex: 9999
+        }}
+        onClick={() => setIsEndGameModalOpen(true)}
+      >
+        End Game 🚪🏃‍♂️
+      </button>
+
+      <Modal
+        title="Are you sure?"
+        open={isEndGameModalOpen}
+        onOk={handleEndGame}
+        onCancel={() => setIsEndGameModalOpen(false)}
+        okText="Yes, End Game"
+        cancelText="Cancel"
+      >
+        <p>Ending the game will log you out and finalize your earnings. Are you sure you want to proceed?</p>
+        <p>your Earnings till now {coins}</p>
+      </Modal>
+
+      <Modal
+        title="Not Enough Coins! 🚨"
+        open={isWarningModalOpen}
+        onOk={() => setIsWarningModalOpen(false)}
+        okText="Got it! 💰"
+        cancelButtonProps={{ style: { display: "none" } }} // Hide cancel button
+      >
+        <p>{warningMessage}</p>
+      </Modal>
     </div>
   );
 };
