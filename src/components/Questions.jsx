@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import QuestionPopup from "./QuestionPopup";
-import { FaSpinner } from "react-icons/fa";
+import { FaSpinner, FaCubes, FaLayerGroup, FaQuestion, FaLock, FaClock, FaCoins, FaCheck } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { Modal, Slider } from "antd";
 import { setUser } from "../userSlice";
+
 
 const Questions = () => {
   const [questions, setQuestions] = useState([]);
@@ -131,7 +132,6 @@ const Questions = () => {
     }
   };
 
-
   const generateMarks = (min, max) => {
     const stepSize = (max - min) / 4; // Divide into 5 points (including min and max)
     let marks = {};
@@ -144,7 +144,6 @@ const Questions = () => {
     return marks;
   };
   
-
   if (loading) {
     return (
       <div className="loading-screen">
@@ -158,18 +157,46 @@ const Questions = () => {
     <div className="questions-page">
       <h1 className="page-title">Crypto Challenge Questions</h1>
       <div className="questions-grid">
-        {questions.map((q) => (
+        {questions.map((q, index) => (
           <div
-            key={q._id}
-            className={`question-card ${q.difficulty?.toLowerCase() || "easy"}`}
+            key={q._id || index}
+            className={`question-card ${q.status || "locked"}`}
             onClick={() => handleQuestionClick(q)}
+            style={{ animationDelay: `${index * 0.1}s` }}
           >
+            {q.status === "locked" && (
+              <div className="lock-overlay">
+                <FaLock className="lock-icon" />
+              </div>
+            )}
             <div className="card-content">
-              <p className="question-text">Topic: {q.topic}</p>
-              <p className="question-text">Difficulty: {q.difficulty}</p>
-              <p className="question-text">Type: {q.question_type}</p>
-              <p className="question-text">Status: {q.status}</p>
-              <p className="question-text">Profit Multiplier: {q.multiplier}x</p>
+              <h3 className="card-topic">
+                <FaCubes className="topic-icon" />{q.topic}
+              </h3>
+              
+              <div className="card-info-row">
+                <div className="info-item">
+                  <FaLayerGroup className="info-icon" />{q.difficulty}
+                </div>
+                <div className="info-item">
+                  <FaQuestion className="info-icon" />{q.question_type}
+                </div>
+              </div>
+              
+              <div className="status-badge">
+                {q.status === "locked" ? 
+                  <FaLock className="status-icon" /> : 
+                  q.status === "attempting" ? 
+                    <FaClock className="status-icon" /> : 
+                    <FaCheck className="status-icon" />
+                }
+                Status: {q.status}
+              </div>
+              
+              <div className="profit-multiplier">
+                <FaCoins className="multiplier-icon" />
+                Profit Multiplier: {q.multiplier}x
+              </div>
             </div>
           </div>
         ))}

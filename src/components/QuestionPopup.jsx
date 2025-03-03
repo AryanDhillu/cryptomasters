@@ -6,10 +6,15 @@ import { setUser } from "../userSlice";
 const QuestionPopup = ({ question, onClose, userId, timeLeft, betAmount, fetchQuestions }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+<<<<<<< HEAD
+  const dispatch = useDispatch();
+  
+=======
   const dispatch = useDispatch();  
   const API_URL = import.meta.env.VITE_API_URL;
   const API_KEY = import.meta.env.VITE_API_KEY;
 
+>>>>>>> f6b0799ae5140861931ff228c0a3bcf0d27bdd15
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
