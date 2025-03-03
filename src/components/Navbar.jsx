@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { FaUser, FaCoins, FaClock, FaBars } from "react-icons/fa";
-import { Navbar as BootstrapNavbar, Container } from "react-bootstrap";
+import { Button, Navbar as BootstrapNavbar, Container } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { setTimeLeft } from "../userSlice";
 
@@ -25,6 +25,27 @@ const Navbar = () => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+  };
+
+  const updateTime = async () => {
+    try {
+      const response = await fetch("https://crypto-master-bsakl.ondigitalocean.app/updateTime", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "API_KEY" : "thisisaryansapikeydontpushittogithub"
+        },
+        body: JSON.stringify({
+          user_id: user.user_id || "--",
+          time_left: timeLeft,
+        }),
+      });
+      const data = await response.json();
+      console.log("Response:", data);
+    } catch (error) {
+      console.error("Error updating time:", error);
+    }
   };
 
   return (
@@ -83,6 +104,10 @@ const Navbar = () => {
             </div>
           )}
         </div>
+
+        <Button variant="primary" onClick={updateTime} className="update-time-btn">
+          Update Time
+        </Button>
       </Container>
     </BootstrapNavbar>
   );

@@ -153,6 +153,34 @@ const Questions = () => {
     );
   }
 
+  const handleEndGame = async () => {
+    try {
+      const response = await fetch(`${API_URL}/end`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "API_KEY": API_KEY,
+        },
+        body: JSON.stringify({ user_id: user.user_id, end_time: new Date().toISOString() }),
+      });
+      const responseData = await response.json();
+      console.log("End Game Response:", responseData);
+      dispatch(logoutUser());
+      navigate("/");
+    } catch (error) {
+      console.error("Error ending game session:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <FaSpinner className="loading-icon" />
+        <p>Loading Questions...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="questions-page">
       <h1 className="page-title">Crypto Challenge Questions</h1>
@@ -244,6 +272,7 @@ const Questions = () => {
           betAmount={betAmount}
           fetchQuestions={fetchQuestions} // Pass function to refresh questions
         />
+        
       )}
     </div>
   );
