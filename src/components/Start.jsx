@@ -54,7 +54,7 @@ const Start = () => {
         <div className="instructions">
           <h3>Instructions:</h3>
           <ul>
-            <li>Each round lasts exactly 40 minutes.</li>
+            <li>Each round lasts exactly 25 minutes.</li>
             <li>
               You can select a question of any difficulty level and place a bet using your coins. There is a minimum bet amount for each question based on the difficulty level.
             </li>
